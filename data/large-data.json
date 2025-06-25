@@ -1,0 +1,5 @@
+{
+  "dummyData": [
+    ${Array(750000).fill(0).map((_, i) => `"item${i}": "This is a dummy item with some text to increase the file size. The quick brown fox jumps over the lazy dog. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."`).join(',\n    ')}
+  ]
+}
