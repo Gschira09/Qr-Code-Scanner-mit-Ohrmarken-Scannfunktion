@@ -16,23 +16,15 @@ export default function ImageScanInfo({ onDismiss }: ImageScanInfoProps) {
       <View style={styles.textContainer}>
         <Text style={styles.title}>Funktionen</Text>
         <Text style={styles.description}>
-          • QR-Codes und Barcodes von Ohrmarken scannen{"
-"}
-          • Ohrmarken-Nummern im Originalformat anzeigen{"
-"}
-          • Keine Formatierung der Nummern{"
-"}
-          • Taschenlampe für bessere Scanergebnisse{"
-"}
-          • Bilder aus der Galerie scannen{"
-"}
-          • Sortiert automatisch QR-Codes und Ohrmarken{"
-"}
-          • Scans werden nach Datum sortiert (neueste zuerst){"
-"}
-          • Exportieren der Ohrmarken-Nummern als CSV-Datei{"
-"}
-          • Anleitung zur APK-Erstellung im "APK"-Tab
+          • QR-Codes und Barcodes von Ohrmarken scannen{"\n"}
+          • Ohrmarken-Nummern im Originalformat anzeigen{"\n"}
+          • Keine Formatierung der Nummern{"\n"}
+          • Taschenlampe für bessere Scanergebnisse{"\n"}
+          • Bilder aus der Galerie scannen{"\n"}
+          • Sortiert automatisch QR-Codes und Ohrmarken{"\n"}
+          • Scans werden nach Datum sortiert (neueste zuerst){"\n"}
+          • Exportieren der Ohrmarken-Nummern als CSV-Datei{"\n"}
+          • Anleitung zum Erstellen einer APK im "APK"-Tab
         </Text>
       </View>
       <TouchableOpacity 
