@@ -2,6 +2,84 @@ import * as FileSystem from 'expo-file-system';
 import { Platform, Share } from 'react-native';
 import { ScannedItem } from '@/types';
 
+// Country code mapping for animal ear tags
+// Format: numeric prefix -> ISO country code
+const COUNTRY_PREFIXES = {
+  // European Union countries
+  '040': 'AT', // Austria
+  '056': 'BE', // Belgium
+  '100': 'BG', // Bulgaria
+  '191': 'HR', // Croatia
+  '196': 'CY', // Cyprus
+  '203': 'CZ', // Czech Republic
+  '208': 'DK', // Denmark
+  '233': 'EE', // Estonia
+  '246': 'FI', // Finland
+  '250': 'FR', // France
+  '276': 'DE', // Germany
+  '300': 'GR', // Greece
+  '348': 'HU', // Hungary
+  '372': 'IE', // Ireland
+  '380': 'IT', // Italy
+  '428': 'LV', // Latvia
+  '440': 'LT', // Lithuania
+  '442': 'LU', // Luxembourg
+  '470': 'MT', // Malta
+  '528': 'NL', // Netherlands
+  '616': 'PL', // Poland
+  '620': 'PT', // Portugal
+  '642': 'RO', // Romania
+  '703': 'SK', // Slovakia
+  '705': 'SI', // Slovenia
+  '724': 'ES', // Spain
+  '752': 'SE', // Sweden
+  
+  // Non-EU European countries
+  '756': 'CH', // Switzerland
+  '826': 'GB', // United Kingdom
+  '578': 'NO', // Norway
+  '352': 'IS', // Iceland
+  '643': 'RU', // Russia
+  '804': 'UA', // Ukraine
+  '807': 'MK', // North Macedonia
+  '688': 'RS', // Serbia
+  '499': 'ME', // Montenegro
+  '070': 'BA', // Bosnia and Herzegovina
+  '008': 'AL', // Albania
+  
+  // Americas
+  '124': 'CA', // Canada
+  '840': 'US', // United States
+  '484': 'MX', // Mexico
+  '076': 'BR', // Brazil
+  '032': 'AR', // Argentina
+  '152': 'CL', // Chile
+  '170': 'CO', // Colombia
+  '604': 'PE', // Peru
+  
+  // Asia & Oceania
+  '036': 'AU', // Australia
+  '554': 'NZ', // New Zealand
+  '392': 'JP', // Japan
+  '410': 'KR', // South Korea
+  '156': 'CN', // China
+  '356': 'IN', // India
+  '360': 'ID', // Indonesia
+  '458': 'MY', // Malaysia
+  '764': 'TH', // Thailand
+  '704': 'VN', // Vietnam
+  
+  // Africa
+  '710': 'ZA', // South Africa
+  '404': 'KE', // Kenya
+  '231': 'ET', // Ethiopia
+  '504': 'MA', // Morocco
+  '818': 'EG', // Egypt
+  '788': 'TN', // Tunisia
+  '012': 'DZ', // Algeria
+  '566': 'NG', // Nigeria
+};
+
 // Generate a CSV file with the original scanned content
 export const generateCSV = (items: ScannedItem[]): string => {
   // Sort items by type (QR codes first, then ear tags) and then by timestamp (newest first)
@@ -21,8 +99,13 @@ export const generateCSV = (items: ScannedItem[]): string => {
     // Use the original scanned content for export - no formatting
     let content = item.originalContent;
     
-    // Replace "040" with "AT" if present
-    content = content.replace(/^040/g, "AT");
+    // Replace numeric country prefixes with ISO country codes
+    for (const [prefix, countryCode] of Object.entries(COUNTRY_PREFIXES)) {
+      if (content.startsWith(prefix)) {
+        content = content.replace(new RegExp(`^${prefix}`), countryCode);
+        break; // Stop after first match
+      }
+    }
     
     // Add the content as a plain text value (not a formula)
     csv += `${content}\r\n`;
