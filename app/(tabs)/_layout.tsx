@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import Colors from '@/constants/colors';
-import { QrCode, List } from 'lucide-react-native';
+import { QrCode, List, Package } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
@@ -37,6 +37,14 @@ export default function TabLayout() {
           title: "Verlauf",
           tabBarIcon: ({ color }) => <List size={24} color={color} />,
           tabBarLabel: "Verlauf",
+        }}
+      />
+      <Tabs.Screen
+        name="apk"
+        options={{
+          title: "APK",
+          tabBarIcon: ({ color }) => <Package size={24} color={color} />,
+          tabBarLabel: "APK",
         }}
       />
     </Tabs>
