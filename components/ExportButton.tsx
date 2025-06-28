@@ -86,7 +86,7 @@ export default function ExportButton() {
         ) : (
           <>
             <Download size={20} color="#fff" style={styles.icon} />
-            <Text style={styles.text}>Ohrmarken-Nummern exportieren</Text>
+            <Text style={styles.text}>Ohrmarken-Nummern als CSV exportieren</Text>
           </>
         )}
       </TouchableOpacity>
