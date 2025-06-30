@@ -29,6 +29,7 @@ export default function TabLayout() {
           title: "Scanner",
           tabBarIcon: ({ color }) => <QrCode size={24} color={color} />,
           tabBarLabel: "Scanner",
+          headerShown: true,
         }}
       />
       <Tabs.Screen
@@ -37,6 +38,7 @@ export default function TabLayout() {
           title: "Verlauf",
           tabBarIcon: ({ color }) => <List size={24} color={color} />,
           tabBarLabel: "Verlauf",
+          headerShown: true,
         }}
       />
     </Tabs>
