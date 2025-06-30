@@ -1,2 +1,2 @@
-# Qr-Code-Scanner-mit-Ohrmarken-Scannfunktion
+# Qr.Code.Scanner.mit.Ohrmarken.Scannfunktion
 Created by Rork
