@@ -40,14 +40,25 @@ export const useScanStore = create<ScanStore>()(
       updateItem: (id: string, additionalInfo: ScannedItem['additionalInfo']) => {
         set((state) => ({
           items: state.items.map((item) =>
-            item.id === id ? { ...item, additionalInfo } : item
+            item.id === id ? { 
+              ...item, 
+              additionalInfo,
+              // Update the timestamp when item is edited to show it was modified
+              lastModified: Date.now()
+            } : item
           )
         }));
+        
+        console.log("Item updated with additional info:", { id, additionalInfo });
       },
     }),
     {
       name: 'barcode-scan-storage',
       storage: createJSONStorage(() => AsyncStorage),
+      // Ensure the data persists across app restarts
+      partialize: (state) => ({
+        items: state.items,
+      }),
     }
   )
 );

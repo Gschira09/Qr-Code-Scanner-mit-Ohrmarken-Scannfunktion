@@ -5,7 +5,8 @@ export interface ScannedItem {
   timestamp: number;
   date: string;
   type: string;
-  // Additional fields for QR code editing
+  lastModified?: number; // Track when the item was last edited
+  // Additional fields for QR code editing - these are permanently stored
   additionalInfo?: {
     animalId?: string;
     breed?: string;

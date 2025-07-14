@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, FlatList, TouchableOpacity, Alert } from 'react
 import { useRouter } from 'expo-router';
 import { useScanStore } from '@/store/scanStore';
 import Colors from '@/constants/colors';
-import { Trash2, Edit3, Info } from 'lucide-react-native';
+import { Trash2, Edit3, Info, Plus } from 'lucide-react-native';
 import { ScannedItem } from '@/types';
 
 interface ScannedItemsListProps {
@@ -66,7 +66,7 @@ export default function ScannedItemsList({ filteredItems }: ScannedItemsListProp
       <View style={styles.additionalInfo}>
         <View style={styles.additionalInfoHeader}>
           <Info size={16} color={Colors.light.primary} />
-          <Text style={styles.additionalInfoTitle}>Zusätzliche Informationen</Text>
+          <Text style={styles.additionalInfoTitle}>Dauerhaft gespeicherte Informationen</Text>
         </View>
         {infoItems.map((item, index) => (
           <Text key={index} style={styles.additionalInfoText}>• {item}</Text>
@@ -97,6 +97,13 @@ export default function ScannedItemsList({ filteredItems }: ScannedItemsListProp
           {hasAdditionalInfo(item) && (
             <View style={styles.infoBadge}>
               <Info size={12} color="#fff" />
+              <Text style={styles.infoBadgeText}>Bearbeitet</Text>
+            </View>
+          )}
+          {item.type === 'qr' && !hasAdditionalInfo(item) && (
+            <View style={styles.editableBadge}>
+              <Plus size={12} color={Colors.light.primary} />
+              <Text style={styles.editableBadgeText}>Bearbeitbar</Text>
             </View>
           )}
         </View>
@@ -109,10 +116,13 @@ export default function ScannedItemsList({ filteredItems }: ScannedItemsListProp
       <View style={styles.actionButtons}>
         {item.type === 'qr' && (
           <TouchableOpacity
-            style={styles.editButton}
+            style={[
+              styles.editButton,
+              hasAdditionalInfo(item) && styles.editButtonWithInfo
+            ]}
             onPress={() => handleEdit(item.id)}
           >
-            <Edit3 size={18} color={Colors.light.primary} />
+            <Edit3 size={18} color={hasAdditionalInfo(item) ? "#fff" : Colors.light.primary} />
           </TouchableOpacity>
         )}
         <TouchableOpacity
@@ -131,6 +141,9 @@ export default function ScannedItemsList({ filteredItems }: ScannedItemsListProp
         <Text style={styles.emptyTitle}>Keine gescannten Einträge</Text>
         <Text style={styles.emptyText}>
           Scannen Sie einen QR-Code oder eine Tierohrmarke, um sie hier angezeigt zu bekommen
+        </Text>
+        <Text style={styles.emptySubtext}>
+          QR-Codes können bearbeitet werden und Informationen werden dauerhaft gespeichert
         </Text>
       </View>
     );
@@ -170,6 +183,7 @@ const styles = StyleSheet.create({
   itemWithInfo: {
     borderLeftWidth: 4,
     borderLeftColor: Colors.light.primary,
+    backgroundColor: '#f8fffe',
   },
   itemContent: {
     flex: 1,
@@ -178,6 +192,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 6,
+    flexWrap: 'wrap',
   },
   itemType: {
     fontSize: 14,
@@ -199,11 +214,34 @@ const styles = StyleSheet.create({
   },
   infoBadge: {
     backgroundColor: Colors.light.primary,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    justifyContent: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    flexDirection: 'row',
     alignItems: 'center',
+    marginRight: 8,
+  },
+  infoBadgeText: {
+    fontSize: 12,
+    color: '#fff',
+    fontWeight: '500',
+    marginLeft: 4,
+  },
+  editableBadge: {
+    backgroundColor: '#e8f4fd',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.light.primary,
+  },
+  editableBadgeText: {
+    fontSize: 12,
+    color: Colors.light.primary,
+    fontWeight: '500',
+    marginLeft: 4,
   },
   itemText: {
     fontSize: 16,
@@ -217,10 +255,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   additionalInfo: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#f0f8ff',
     padding: 12,
     borderRadius: 8,
     marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#e1f0ff',
   },
   additionalInfoHeader: {
     flexDirection: 'row',
@@ -256,6 +296,9 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: '#f0f4f8',
   },
+  editButtonWithInfo: {
+    backgroundColor: Colors.light.primary,
+  },
   deleteButton: {
     padding: 8,
     borderRadius: 6,
@@ -277,5 +320,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.light.placeholder,
     textAlign: 'center',
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: Colors.light.primary,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 });

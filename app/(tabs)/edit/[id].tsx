@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, Alert 
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useScanStore } from '@/store/scanStore';
 import Colors from '@/constants/colors';
-import { Save, ArrowLeft } from 'lucide-react-native';
+import { Save, ArrowLeft, Info, Lock } from 'lucide-react-native';
 
 export default function EditItemScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -50,8 +50,8 @@ export default function EditItemScreen() {
     updateItem(id, Object.keys(filteredData).length > 0 ? filteredData : undefined);
     
     Alert.alert(
-      "Gespeichert",
-      "Die zusätzlichen Informationen wurden erfolgreich gespeichert.",
+      "Dauerhaft gespeichert",
+      "Die zusätzlichen Informationen wurden dauerhaft mit diesem QR-Code verknüpft und gespeichert. Sie bleiben auch nach App-Neustarts erhalten.",
       [{ text: "OK", onPress: () => router.back() }]
     );
   };
@@ -59,6 +59,8 @@ export default function EditItemScreen() {
   const handleCancel = () => {
     router.back();
   };
+
+  const hasExistingData = item?.additionalInfo && Object.keys(item.additionalInfo).length > 0;
 
   if (!item) {
     return (
@@ -80,7 +82,7 @@ export default function EditItemScreen() {
       <>
         <Stack.Screen 
           options={{
-            title: "QR-Code bearbeiten",
+            title: "QR-Code dauerhaft bearbeiten",
             headerTitleStyle: {
               fontWeight: 'bold',
             },
@@ -91,12 +93,30 @@ export default function EditItemScreen() {
           <View style={styles.header}>
             <Text style={styles.title}>QR-Code Informationen</Text>
             <View style={styles.originalContent}>
-              <Text style={styles.originalLabel}>Ursprünglicher Inhalt:</Text>
+              <Text style={styles.originalLabel}>Ursprünglicher QR-Code Inhalt:</Text>
               <Text style={styles.originalText}>{item.content}</Text>
             </View>
+            
+            <View style={styles.persistenceInfo}>
+              <Lock size={16} color={Colors.light.primary} />
+              <Text style={styles.persistenceText}>
+                Alle Änderungen werden dauerhaft mit diesem QR-Code gespeichert
+              </Text>
+            </View>
+            
+            {hasExistingData && (
+              <View style={styles.existingDataInfo}>
+                <Info size={16} color={Colors.light.success} />
+                <Text style={styles.existingDataText}>
+                  Dieser QR-Code hat bereits gespeicherte Informationen
+                </Text>
+              </View>
+            )}
           </View>
 
           <View style={styles.form}>
+            <Text style={styles.sectionTitle}>Zusätzliche Informationen hinzufügen</Text>
+            
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Tier-ID</Text>
               <TextInput
@@ -186,8 +206,14 @@ export default function EditItemScreen() {
             
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
               <Save size={20} color="#fff" style={styles.saveIcon} />
-              <Text style={styles.saveButtonText}>Speichern</Text>
+              <Text style={styles.saveButtonText}>Dauerhaft speichern</Text>
             </TouchableOpacity>
+          </View>
+          
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>
+              Die Informationen werden dauerhaft mit diesem QR-Code verknüpft und bleiben auch nach App-Neustarts erhalten.
+            </Text>
           </View>
         </ScrollView>
       </>
@@ -209,7 +235,7 @@ export default function EditItemScreen() {
       <View style={styles.notAvailableContainer}>
         <Text style={styles.notAvailableTitle}>Bearbeitung nicht verfügbar</Text>
         <Text style={styles.notAvailableText}>
-          Die Bearbeitung ist nur für QR-Codes verfügbar. Ohrmarken-Barcodes können nicht bearbeitet werden.
+          Die dauerhafte Bearbeitung ist nur für QR-Codes verfügbar. Ohrmarken-Barcodes können nicht bearbeitet werden.
         </Text>
         <View style={styles.itemInfo}>
           <Text style={styles.itemInfoLabel}>Typ:</Text>
@@ -246,6 +272,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.card,
     padding: 12,
     borderRadius: 8,
+    marginBottom: 12,
   },
   originalLabel: {
     fontSize: 14,
@@ -258,8 +285,43 @@ const styles = StyleSheet.create({
     color: Colors.light.text,
     fontWeight: '500',
   },
+  persistenceInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e8f4fd',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  persistenceText: {
+    fontSize: 14,
+    color: Colors.light.primary,
+    marginLeft: 8,
+    flex: 1,
+    fontWeight: '500',
+  },
+  existingDataInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0fdf4',
+    padding: 12,
+    borderRadius: 8,
+  },
+  existingDataText: {
+    fontSize: 14,
+    color: Colors.light.success,
+    marginLeft: 8,
+    flex: 1,
+    fontWeight: '500',
+  },
   form: {
     padding: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.light.text,
+    marginBottom: 16,
   },
   inputGroup: {
     marginBottom: 20,
@@ -319,6 +381,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#fff',
+  },
+  footer: {
+    padding: 16,
+    paddingTop: 0,
+  },
+  footerText: {
+    fontSize: 14,
+    color: Colors.light.placeholder,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
   errorContainer: {
     flex: 1,
