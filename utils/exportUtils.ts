@@ -80,7 +80,7 @@ const COUNTRY_PREFIXES = {
   '566': 'NG', // Nigeria
 };
 
-// Generate a CSV file with the original scanned content
+// Generate a CSV file with the original scanned content and additional information
 export const generateCSV = (items: ScannedItem[]): string => {
   // Sort items by type (QR codes first, then ear tags) and then by timestamp (newest first)
   const qrItems = items.filter(item => item.type === 'qr')
@@ -90,25 +90,43 @@ export const generateCSV = (items: ScannedItem[]): string => {
   
   const sortedItems = [...qrItems, ...earTagItems];
   
-  // Simple CSV with just the ear tag numbers
-  // No header row, just the values
-  let csv = "";
+  // CSV with headers for additional information
+  let csv = "Inhalt,Typ,Datum,Tier-ID,Rasse,Geburtsdatum,Gewicht,Besitzer,Standort,Notizen\r\n";
   
-  // Add each item as a row with just the content
+  // Add each item as a row
   sortedItems.forEach(item => {
     // Use the original scanned content for export - no formatting
     let content = item.originalContent;
     
-    // Replace numeric country prefixes with ISO country codes
-    for (const [prefix, countryCode] of Object.entries(COUNTRY_PREFIXES)) {
-      if (content.startsWith(prefix)) {
-        content = content.replace(new RegExp(`^${prefix}`), countryCode);
-        break; // Stop after first match
+    // Replace numeric country prefixes with ISO country codes for ear tags
+    if (item.type !== 'qr') {
+      for (const [prefix, countryCode] of Object.entries(COUNTRY_PREFIXES)) {
+        if (content.startsWith(prefix)) {
+          content = content.replace(new RegExp(`^${prefix}`), countryCode);
+          break; // Stop after first match
+        }
       }
     }
     
-    // Add the content as a plain text value (not a formula)
-    csv += `${content}\r\n`;
+    // Get additional info or empty strings
+    const info = item.additionalInfo || {};
+    const animalId = info.animalId || '';
+    const breed = info.breed || '';
+    const birthDate = info.birthDate || '';
+    const weight = info.weight || '';
+    const ownerName = info.ownerName || '';
+    const location = info.location || '';
+    const notes = info.notes || '';
+    
+    // Escape quotes and commas in CSV
+    const escapeCSV = (str: string) => {
+      if (str.includes('"') || str.includes(',') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+    
+    csv += `${escapeCSV(content)},${escapeCSV(getReadableTypeName(item.type))},${escapeCSV(item.date)},${escapeCSV(animalId)},${escapeCSV(breed)},${escapeCSV(birthDate)},${escapeCSV(weight)},${escapeCSV(ownerName)},${escapeCSV(location)},${escapeCSV(notes)}\r\n`;
   });
   
   return csv;

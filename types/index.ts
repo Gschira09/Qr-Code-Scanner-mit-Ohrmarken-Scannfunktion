@@ -1,10 +1,20 @@
 export interface ScannedItem {
   id: string;
   content: string;
-  originalContent: string; // Added to store the original unformatted content
+  originalContent: string;
   timestamp: number;
   date: string;
-  type: string; // Added barcode type field
+  type: string;
+  // Additional fields for QR code editing
+  additionalInfo?: {
+    animalId?: string;
+    breed?: string;
+    birthDate?: string;
+    weight?: string;
+    notes?: string;
+    ownerName?: string;
+    location?: string;
+  };
 }
 
 export interface ScanStore {
@@ -12,4 +22,5 @@ export interface ScanStore {
   addItem: (content: string, type: string) => void;
   removeItem: (id: string) => void;
   clearItems: () => void;
+  updateItem: (id: string, additionalInfo: ScannedItem['additionalInfo']) => void;
 }

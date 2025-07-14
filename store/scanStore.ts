@@ -16,6 +16,7 @@ export const useScanStore = create<ScanStore>()(
           timestamp: Date.now(),
           date: new Date().toLocaleString(),
           type,
+          additionalInfo: undefined,
         };
         
         console.log("Adding scanned item to store:", newItem);
@@ -35,6 +36,13 @@ export const useScanStore = create<ScanStore>()(
       },
       clearItems: () => {
         set({ items: [] });
+      },
+      updateItem: (id: string, additionalInfo: ScannedItem['additionalInfo']) => {
+        set((state) => ({
+          items: state.items.map((item) =>
+            item.id === id ? { ...item, additionalInfo } : item
+          )
+        }));
       },
     }),
     {
