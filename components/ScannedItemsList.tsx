@@ -100,7 +100,7 @@ export default function ScannedItemsList({ filteredItems }: ScannedItemsListProp
               <Text style={styles.infoBadgeText}>Bearbeitet</Text>
             </View>
           )}
-          {item.type === 'qr' && !hasAdditionalInfo(item) && (
+          {!hasAdditionalInfo(item) && (
             <View style={styles.editableBadge}>
               <Plus size={12} color={Colors.light.primary} />
               <Text style={styles.editableBadgeText}>Bearbeitbar</Text>
@@ -114,17 +114,15 @@ export default function ScannedItemsList({ filteredItems }: ScannedItemsListProp
       </View>
       
       <View style={styles.actionButtons}>
-        {item.type === 'qr' && (
-          <TouchableOpacity
-            style={[
-              styles.editButton,
-              hasAdditionalInfo(item) && styles.editButtonWithInfo
-            ]}
-            onPress={() => handleEdit(item.id)}
-          >
-            <Edit3 size={18} color={hasAdditionalInfo(item) ? "#fff" : Colors.light.primary} />
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          style={[
+            styles.editButton,
+            hasAdditionalInfo(item) && styles.editButtonWithInfo
+          ]}
+          onPress={() => handleEdit(item.id)}
+        >
+          <Edit3 size={18} color={hasAdditionalInfo(item) ? "#fff" : Colors.light.primary} />
+        </TouchableOpacity>
         <TouchableOpacity
           style={styles.deleteButton}
           onPress={() => confirmDelete(item.id)}
@@ -143,7 +141,7 @@ export default function ScannedItemsList({ filteredItems }: ScannedItemsListProp
           Scannen Sie einen QR-Code oder eine Tierohrmarke, um sie hier angezeigt zu bekommen
         </Text>
         <Text style={styles.emptySubtext}>
-          QR-Codes können bearbeitet werden und Informationen werden dauerhaft gespeichert
+          Alle Barcodes können bearbeitet werden und Informationen werden dauerhaft gespeichert
         </Text>
       </View>
     );

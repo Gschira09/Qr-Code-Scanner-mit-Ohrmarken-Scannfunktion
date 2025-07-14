@@ -49,9 +49,11 @@ export default function EditItemScreen() {
     
     updateItem(id, Object.keys(filteredData).length > 0 ? filteredData : undefined);
     
+    const itemType = item.type === 'qr' ? 'QR-Code' : 'Ohrmarke';
+    
     Alert.alert(
       "Dauerhaft gespeichert",
-      "Die zusätzlichen Informationen wurden dauerhaft mit diesem QR-Code verknüpft und gespeichert. Sie bleiben auch nach App-Neustarts erhalten.",
+      `Die zusätzlichen Informationen wurden dauerhaft mit dieser ${itemType} verknüpft und gespeichert. Sie bleiben auch nach App-Neustarts erhalten.`,
       [{ text: "OK", onPress: () => router.back() }]
     );
   };
@@ -61,6 +63,21 @@ export default function EditItemScreen() {
   };
 
   const hasExistingData = item?.additionalInfo && Object.keys(item.additionalInfo).length > 0;
+
+  const getBarcodeTypeLabel = (type: string) => {
+    if (type === 'qr') return 'QR-Code';
+    if (type.includes('code')) return type.toUpperCase();
+    if (type.includes('ean')) return `EAN-${type.replace('ean', '')}`;
+    if (type === 'upc_e') return 'UPC-E';
+    if (type === 'datamatrix') return 'DataMatrix';
+    if (type === 'pdf417') return 'PDF417';
+    if (type === 'itf14') return 'ITF-14';
+    return type.toUpperCase();
+  };
+
+  const isEarTag = (type: string) => {
+    return type !== 'qr';
+  };
 
   if (!item) {
     return (
@@ -77,177 +94,151 @@ export default function EditItemScreen() {
     );
   }
 
-  if (item.type === 'qr') {
-    return (
-      <>
-        <Stack.Screen 
-          options={{
-            title: "QR-Code dauerhaft bearbeiten",
-            headerTitleStyle: {
-              fontWeight: 'bold',
-            },
-          }}
-        />
-        
-        <ScrollView style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.title}>QR-Code Informationen</Text>
-            <View style={styles.originalContent}>
-              <Text style={styles.originalLabel}>Ursprünglicher QR-Code Inhalt:</Text>
-              <Text style={styles.originalText}>{item.content}</Text>
-            </View>
-            
-            <View style={styles.persistenceInfo}>
-              <Lock size={16} color={Colors.light.primary} />
-              <Text style={styles.persistenceText}>
-                Alle Änderungen werden dauerhaft mit diesem QR-Code gespeichert
-              </Text>
-            </View>
-            
-            {hasExistingData && (
-              <View style={styles.existingDataInfo}>
-                <Info size={16} color={Colors.light.success} />
-                <Text style={styles.existingDataText}>
-                  Dieser QR-Code hat bereits gespeicherte Informationen
-                </Text>
-              </View>
-            )}
-          </View>
+  const itemTypeLabel = getBarcodeTypeLabel(item.type);
+  const isEarTagItem = isEarTag(item.type);
 
-          <View style={styles.form}>
-            <Text style={styles.sectionTitle}>Zusätzliche Informationen hinzufügen</Text>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Tier-ID</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.animalId}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, animalId: text }))}
-                placeholder="z.B. DE123456789"
-                placeholderTextColor={Colors.light.placeholder}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Rasse</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.breed}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, breed: text }))}
-                placeholder="z.B. Holstein-Friesian"
-                placeholderTextColor={Colors.light.placeholder}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Geburtsdatum</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.birthDate}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, birthDate: text }))}
-                placeholder="z.B. 15.03.2023"
-                placeholderTextColor={Colors.light.placeholder}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Gewicht (kg)</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.weight}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, weight: text }))}
-                placeholder="z.B. 450"
-                placeholderTextColor={Colors.light.placeholder}
-                keyboardType="numeric"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Besitzer</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.ownerName}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, ownerName: text }))}
-                placeholder="z.B. Max Mustermann"
-                placeholderTextColor={Colors.light.placeholder}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Standort</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.location}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, location: text }))}
-                placeholder="z.B. Stall A, Box 12"
-                placeholderTextColor={Colors.light.placeholder}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Notizen</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                value={formData.notes}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, notes: text }))}
-                placeholder="Zusätzliche Informationen..."
-                placeholderTextColor={Colors.light.placeholder}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-              />
-            </View>
-          </View>
-
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
-              <Text style={styles.cancelButtonText}>Abbrechen</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Save size={20} color="#fff" style={styles.saveIcon} />
-              <Text style={styles.saveButtonText}>Dauerhaft speichern</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>
-              Die Informationen werden dauerhaft mit diesem QR-Code verknüpft und bleiben auch nach App-Neustarts erhalten.
-            </Text>
-          </View>
-        </ScrollView>
-      </>
-    );
-  }
-
-  // For non-QR codes (ear tags), show a message that editing is not available
   return (
     <>
       <Stack.Screen 
         options={{
-          title: "Bearbeitung nicht verfügbar",
+          title: `${itemTypeLabel} dauerhaft bearbeiten`,
           headerTitleStyle: {
             fontWeight: 'bold',
           },
         }}
       />
       
-      <View style={styles.notAvailableContainer}>
-        <Text style={styles.notAvailableTitle}>Bearbeitung nicht verfügbar</Text>
-        <Text style={styles.notAvailableText}>
-          Die dauerhafte Bearbeitung ist nur für QR-Codes verfügbar. Ohrmarken-Barcodes können nicht bearbeitet werden.
-        </Text>
-        <View style={styles.itemInfo}>
-          <Text style={styles.itemInfoLabel}>Typ:</Text>
-          <Text style={styles.itemInfoValue}>{item.type.toUpperCase()}</Text>
-          <Text style={styles.itemInfoLabel}>Inhalt:</Text>
-          <Text style={styles.itemInfoValue}>{item.content}</Text>
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            {isEarTagItem ? 'Ohrmarken' : 'QR-Code'} Informationen
+          </Text>
+          <View style={styles.originalContent}>
+            <Text style={styles.originalLabel}>
+              Ursprünglicher {itemTypeLabel} Inhalt:
+            </Text>
+            <Text style={styles.originalText}>{item.content}</Text>
+          </View>
+          
+          <View style={styles.persistenceInfo}>
+            <Lock size={16} color={Colors.light.primary} />
+            <Text style={styles.persistenceText}>
+              Alle Änderungen werden dauerhaft mit dieser {isEarTagItem ? 'Ohrmarke' : 'QR-Code'} gespeichert
+            </Text>
+          </View>
+          
+          {hasExistingData && (
+            <View style={styles.existingDataInfo}>
+              <Info size={16} color={Colors.light.success} />
+              <Text style={styles.existingDataText}>
+                Diese {isEarTagItem ? 'Ohrmarke' : 'QR-Code'} hat bereits gespeicherte Informationen
+              </Text>
+            </View>
+          )}
         </View>
-        <TouchableOpacity style={styles.backButton} onPress={handleCancel}>
-          <ArrowLeft size={20} color="#fff" />
-          <Text style={styles.backButtonText}>Zurück</Text>
-        </TouchableOpacity>
-      </View>
+
+        <View style={styles.form}>
+          <Text style={styles.sectionTitle}>Zusätzliche Informationen hinzufügen</Text>
+          
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Tier-ID</Text>
+            <TextInput
+              style={styles.input}
+              value={formData.animalId}
+              onChangeText={(text) => setFormData(prev => ({ ...prev, animalId: text }))}
+              placeholder="z.B. DE123456789"
+              placeholderTextColor={Colors.light.placeholder}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Rasse</Text>
+            <TextInput
+              style={styles.input}
+              value={formData.breed}
+              onChangeText={(text) => setFormData(prev => ({ ...prev, breed: text }))}
+              placeholder="z.B. Holstein-Friesian"
+              placeholderTextColor={Colors.light.placeholder}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Geburtsdatum</Text>
+            <TextInput
+              style={styles.input}
+              value={formData.birthDate}
+              onChangeText={(text) => setFormData(prev => ({ ...prev, birthDate: text }))}
+              placeholder="z.B. 15.03.2023"
+              placeholderTextColor={Colors.light.placeholder}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Gewicht (kg)</Text>
+            <TextInput
+              style={styles.input}
+              value={formData.weight}
+              onChangeText={(text) => setFormData(prev => ({ ...prev, weight: text }))}
+              placeholder="z.B. 450"
+              placeholderTextColor={Colors.light.placeholder}
+              keyboardType="numeric"
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Besitzer</Text>
+            <TextInput
+              style={styles.input}
+              value={formData.ownerName}
+              onChangeText={(text) => setFormData(prev => ({ ...prev, ownerName: text }))}
+              placeholder="z.B. Max Mustermann"
+              placeholderTextColor={Colors.light.placeholder}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Standort</Text>
+            <TextInput
+              style={styles.input}
+              value={formData.location}
+              onChangeText={(text) => setFormData(prev => ({ ...prev, location: text }))}
+              placeholder="z.B. Stall A, Box 12"
+              placeholderTextColor={Colors.light.placeholder}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Notizen</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              value={formData.notes}
+              onChangeText={(text) => setFormData(prev => ({ ...prev, notes: text }))}
+              placeholder="Zusätzliche Informationen..."
+              placeholderTextColor={Colors.light.placeholder}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+            />
+          </View>
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+            <Text style={styles.cancelButtonText}>Abbrechen</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Save size={20} color="#fff" style={styles.saveIcon} />
+            <Text style={styles.saveButtonText}>Dauerhaft speichern</Text>
+          </TouchableOpacity>
+        </View>
+        
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            Die Informationen werden dauerhaft mit dieser {isEarTagItem ? 'Ohrmarke' : 'QR-Code'} verknüpft und bleiben auch nach App-Neustarts erhalten.
+          </Text>
+        </View>
+      </ScrollView>
     </>
   );
 }
@@ -418,44 +409,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,
-  },
-  notAvailableContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: Colors.light.background,
-  },
-  notAvailableTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: Colors.light.text,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  notAvailableText: {
-    fontSize: 16,
-    color: Colors.light.placeholder,
-    textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 22,
-  },
-  itemInfo: {
-    backgroundColor: Colors.light.card,
-    padding: 16,
-    borderRadius: 12,
-    width: '100%',
-    marginBottom: 24,
-  },
-  itemInfoLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: Colors.light.placeholder,
-    marginBottom: 4,
-  },
-  itemInfoValue: {
-    fontSize: 16,
-    color: Colors.light.text,
-    marginBottom: 12,
   },
 });
