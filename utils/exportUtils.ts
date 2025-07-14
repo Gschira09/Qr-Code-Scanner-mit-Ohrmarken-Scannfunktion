@@ -80,7 +80,7 @@ const COUNTRY_PREFIXES = {
   '566': 'NG', // Nigeria
 };
 
-// Generate a CSV file with the original scanned content and additional information
+// Generate a comprehensive CSV file with all scanned content and additional information
 export const generateCSV = (items: ScannedItem[]): string => {
   // Sort items by type (QR codes first, then ear tags) and then by timestamp (newest first)
   const qrItems = items.filter(item => item.type === 'qr')
@@ -90,13 +90,13 @@ export const generateCSV = (items: ScannedItem[]): string => {
   
   const sortedItems = [...qrItems, ...earTagItems];
   
-  // CSV with headers for additional information
-  let csv = "Inhalt,Typ,Datum,Tier-ID,Rasse,Geburtsdatum,Gewicht,Besitzer,Standort,Notizen\r\n";
+  // Enhanced CSV headers with all additional information fields
+  let csv = "Inhalt,Typ,Scan-Datum,Bearbeitet,Tier-ID,Rasse,Geburtsdatum,Gewicht (kg),Besitzer,Standort,Notizen,Letzte Änderung\r\n";
   
-  // Add each item as a row
+  // Add each item as a row with complete information
   sortedItems.forEach(item => {
     // Use the original scanned content for export - no formatting
-    let content = item.originalContent;
+    let content = item.originalContent || item.content;
     
     // Replace numeric country prefixes with ISO country codes for ear tags
     if (item.type !== 'qr') {
@@ -118,6 +118,15 @@ export const generateCSV = (items: ScannedItem[]): string => {
     const location = info.location || '';
     const notes = info.notes || '';
     
+    // Check if item has been edited
+    const hasAdditionalInfo = item.additionalInfo && Object.keys(item.additionalInfo).length > 0;
+    const editedStatus = hasAdditionalInfo ? 'Ja' : 'Nein';
+    
+    // Format last modified date
+    const lastModified = item.lastModified 
+      ? new Date(item.lastModified).toLocaleString('de-DE')
+      : '';
+    
     // Escape quotes and commas in CSV
     const escapeCSV = (str: string) => {
       if (str.includes('"') || str.includes(',') || str.includes('\n')) {
@@ -126,7 +135,8 @@ export const generateCSV = (items: ScannedItem[]): string => {
       return str;
     };
     
-    csv += `${escapeCSV(content)},${escapeCSV(getReadableTypeName(item.type))},${escapeCSV(item.date)},${escapeCSV(animalId)},${escapeCSV(breed)},${escapeCSV(birthDate)},${escapeCSV(weight)},${escapeCSV(ownerName)},${escapeCSV(location)},${escapeCSV(notes)}\r\n`;
+    // Add row with all information including edit status and modification date
+    csv += `${escapeCSV(content)},${escapeCSV(getReadableTypeName(item.type))},${escapeCSV(item.date)},${escapeCSV(editedStatus)},${escapeCSV(animalId)},${escapeCSV(breed)},${escapeCSV(birthDate)},${escapeCSV(weight)},${escapeCSV(ownerName)},${escapeCSV(location)},${escapeCSV(notes)},${escapeCSV(lastModified)}\r\n`;
   });
   
   return csv;
@@ -152,7 +162,7 @@ export const exportToCSV = async (items: ScannedItem[]): Promise<boolean> => {
     } else {
       // For mobile platforms
       const csv = generateCSV(items);
-      const fileName = `ohrmarken_nummern_${Date.now()}.csv`;
+      const fileName = `ohrmarken_export_${new Date().toISOString().split('T')[0]}_${Date.now()}.csv`;
       
       if (Platform.OS === 'android') {
         // On Android, try to save to Downloads folder using StorageAccessFramework
@@ -163,7 +173,7 @@ export const exportToCSV = async (items: ScannedItem[]): Promise<boolean> => {
             encoding: FileSystem.EncodingType.UTF8
           });
           
-          console.log(`Temporäre Datei geschrieben nach: ${tempFilePath}`);
+          console.log(`Temporäre CSV-Datei geschrieben nach: ${tempFilePath}`);
           
           // Then use StorageAccessFramework to save to Downloads
           // This will prompt the user to select a location
@@ -185,7 +195,7 @@ export const exportToCSV = async (items: ScannedItem[]): Promise<boolean> => {
               { encoding: FileSystem.EncodingType.UTF8 }
             );
             
-            console.log(`Datei erfolgreich in Downloads-Ordner gespeichert: ${destinationUri}`);
+            console.log(`CSV-Datei erfolgreich in Downloads-Ordner gespeichert: ${destinationUri}`);
             
             // Clean up the temp file
             await FileSystem.deleteAsync(tempFilePath);
@@ -200,7 +210,7 @@ export const exportToCSV = async (items: ScannedItem[]): Promise<boolean> => {
               encoding: FileSystem.EncodingType.UTF8
             });
             
-            console.log(`Datei im Dokumentenordner gespeichert: ${filePath}`);
+            console.log(`CSV-Datei im Dokumentenordner gespeichert: ${filePath}`);
             return true;
           }
         } catch (error) {
@@ -212,7 +222,7 @@ export const exportToCSV = async (items: ScannedItem[]): Promise<boolean> => {
             encoding: FileSystem.EncodingType.UTF8
           });
           
-          console.log(`Datei im Dokumentenordner gespeichert: ${filePath}`);
+          console.log(`CSV-Datei im Dokumentenordner gespeichert: ${filePath}`);
           return true;
         }
       } else {
@@ -227,13 +237,13 @@ export const exportToCSV = async (items: ScannedItem[]): Promise<boolean> => {
           encoding: FileSystem.EncodingType.UTF8
         });
         
-        console.log(`Datei erfolgreich geschrieben nach: ${filePath}`);
+        console.log(`CSV-Datei erfolgreich geschrieben nach: ${filePath}`);
         
         return true;
       }
     }
   } catch (error) {
-    console.error('Fehler beim Exportieren der Daten:', error);
+    console.error('Fehler beim Exportieren der CSV-Daten:', error);
     return false;
   }
 };
@@ -248,7 +258,7 @@ export const downloadAsFile = async (items: ScannedItem[], fileType: 'csv'): Pro
     
     const content = generateCSV(items);
     const mimeType = 'text/csv;charset=utf-8';
-    const fileName = `ohrmarken_nummern_${Date.now()}.csv`;
+    const fileName = `ohrmarken_export_${new Date().toISOString().split('T')[0]}_${Date.now()}.csv`;
     
     // Create a blob and download link
     const blob = new Blob([content], { type: mimeType });
@@ -266,9 +276,10 @@ export const downloadAsFile = async (items: ScannedItem[], fileType: 'csv'): Pro
     // Clean up the URL object
     URL.revokeObjectURL(url);
     
+    console.log(`CSV-Datei erfolgreich heruntergeladen: ${fileName}`);
     return true;
   } catch (error) {
-    console.error(`Fehler beim Herunterladen als CSV:`, error);
+    console.error(`Fehler beim Herunterladen der CSV-Datei:`, error);
     return false;
   }
 };

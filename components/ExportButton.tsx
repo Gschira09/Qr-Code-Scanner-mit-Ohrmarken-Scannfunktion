@@ -3,25 +3,32 @@ import { StyleSheet, TouchableOpacity, Text, ActivityIndicator, Platform, Alert,
 import { useScanStore } from '@/store/scanStore';
 import { exportToCSV, downloadAsFile } from '@/utils/exportUtils';
 import Colors from '@/constants/colors';
-import { Download } from 'lucide-react-native';
+import { Download, FileSpreadsheet } from 'lucide-react-native';
 
 export default function ExportButton() {
   const [exporting, setExporting] = useState(false);
   const items = useScanStore((state) => state.items);
+
+  // Count items with additional information
+  const itemsWithAdditionalInfo = items.filter(item => 
+    item.additionalInfo && Object.keys(item.additionalInfo).length > 0
+  ).length;
 
   const handleExport = async () => {
     if (items.length === 0 || exporting) return;
     
     setExporting(true);
     try {
-      console.log('Starte CSV-Export-Prozess...');
+      console.log('Starte vollständigen CSV-Export-Prozess...');
       
       if (Platform.OS === 'web') {
         // On web, directly download the CSV file
         await downloadAsFile(items, 'csv');
         Alert.alert(
           "CSV-Export erfolgreich", 
-          "Die CSV-Datei mit den Ohrmarken-Nummern wurde erfolgreich heruntergeladen."
+          `Die Excel/CSV-Datei wurde erfolgreich heruntergeladen.\n\n` +
+          `Enthält ${items.length} Einträge, davon ${itemsWithAdditionalInfo} mit zusätzlichen Informationen.\n\n` +
+          `Alle bearbeiteten QR-Code-Informationen sind in der Excel-Liste enthalten.`
         );
       } else if (Platform.OS === 'android') {
         // On Android, try to save to Downloads folder
@@ -30,7 +37,9 @@ export default function ExportButton() {
         if (success) {
           Alert.alert(
             "CSV-Export erfolgreich", 
-            "Die CSV-Datei mit den Ohrmarken-Nummern wurde erfolgreich im Downloads-Ordner gespeichert."
+            `Die Excel/CSV-Datei wurde erfolgreich im Downloads-Ordner gespeichert.\n\n` +
+            `Enthält ${items.length} Einträge, davon ${itemsWithAdditionalInfo} mit zusätzlichen Informationen.\n\n` +
+            `Alle bearbeiteten QR-Code-Informationen sind in der Excel-Liste enthalten.`
           );
         } else {
           Alert.alert(
@@ -45,7 +54,9 @@ export default function ExportButton() {
         if (success) {
           Alert.alert(
             "CSV-Export erfolgreich", 
-            "Die CSV-Datei mit den Ohrmarken-Nummern wurde erfolgreich im Dokumentenordner gespeichert."
+            `Die Excel/CSV-Datei wurde erfolgreich im Dokumentenordner gespeichert.\n\n` +
+            `Enthält ${items.length} Einträge, davon ${itemsWithAdditionalInfo} mit zusätzlichen Informationen.\n\n` +
+            `Alle bearbeiteten QR-Code-Informationen sind in der Excel-Liste enthalten.`
           );
         } else {
           Alert.alert(
@@ -55,7 +66,7 @@ export default function ExportButton() {
         }
       }
       
-      console.log('CSV-Export erfolgreich abgeschlossen');
+      console.log('Vollständiger CSV-Export erfolgreich abgeschlossen');
     } catch (error) {
       console.error('CSV-Export fehlgeschlagen:', error);
       Alert.alert(
@@ -85,11 +96,17 @@ export default function ExportButton() {
           <ActivityIndicator size="small" color="#fff" />
         ) : (
           <>
-            <Download size={20} color="#fff" style={styles.icon} />
-            <Text style={styles.text}>Ohrmarken-Nummern als CSV exportieren</Text>
+            <FileSpreadsheet size={20} color="#fff" style={styles.icon} />
+            <Text style={styles.text}>Excel/CSV Export</Text>
           </>
         )}
       </TouchableOpacity>
+      
+      {itemsWithAdditionalInfo > 0 && (
+        <Text style={styles.infoText}>
+          {itemsWithAdditionalInfo} Einträge mit zusätzlichen Informationen werden in der Excel-Liste angezeigt
+        </Text>
+      )}
     </View>
   );
 }
@@ -97,7 +114,7 @@ export default function ExportButton() {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
-    gap: 10,
+    gap: 8,
   },
   button: {
     flex: 1,
@@ -124,5 +141,11 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: 8,
+  },
+  infoText: {
+    fontSize: 12,
+    color: Colors.light.primary,
+    textAlign: 'center',
+    fontWeight: '500',
   },
 });
