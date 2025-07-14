@@ -90,8 +90,8 @@ export const generateCSV = (items: ScannedItem[]): string => {
   
   const sortedItems = [...qrItems, ...earTagItems];
   
-  // Enhanced CSV headers with all additional information fields
-  let csv = "Inhalt,Typ,Scan-Datum,Bearbeitet,Tier-ID,Rasse,Geburtsdatum,Gewicht (kg),Besitzer,Standort,Notizen,Letzte Änderung\r\n";
+  // Updated CSV headers without weight, location, and notes
+  let csv = "Inhalt,Typ,Scan-Datum,Bearbeitet,Tier-ID,Rasse,Geburtsdatum,Besitzer,Letzte Änderung\r\n";
   
   // Add each item as a row with complete information
   sortedItems.forEach(item => {
@@ -113,10 +113,7 @@ export const generateCSV = (items: ScannedItem[]): string => {
     const animalId = info.animalId || '';
     const breed = info.breed || '';
     const birthDate = info.birthDate || '';
-    const weight = info.weight || '';
     const ownerName = info.ownerName || '';
-    const location = info.location || '';
-    const notes = info.notes || '';
     
     // Check if item has been edited
     const hasAdditionalInfo = item.additionalInfo && Object.keys(item.additionalInfo).length > 0;
@@ -136,7 +133,7 @@ export const generateCSV = (items: ScannedItem[]): string => {
     };
     
     // Add row with all information including edit status and modification date
-    csv += `${escapeCSV(content)},${escapeCSV(getReadableTypeName(item.type))},${escapeCSV(item.date)},${escapeCSV(editedStatus)},${escapeCSV(animalId)},${escapeCSV(breed)},${escapeCSV(birthDate)},${escapeCSV(weight)},${escapeCSV(ownerName)},${escapeCSV(location)},${escapeCSV(notes)},${escapeCSV(lastModified)}\r\n`;
+    csv += `${escapeCSV(content)},${escapeCSV(getReadableTypeName(item.type))},${escapeCSV(item.date)},${escapeCSV(editedStatus)},${escapeCSV(animalId)},${escapeCSV(breed)},${escapeCSV(birthDate)},${escapeCSV(ownerName)},${escapeCSV(lastModified)}\r\n`;
   });
   
   return csv;

@@ -11,15 +11,22 @@ export interface ScannedItem {
     animalId?: string;
     breed?: string;
     birthDate?: string;
-    weight?: string;
-    notes?: string;
     ownerName?: string;
-    location?: string;
   };
+}
+
+export interface PermanentBarcodeData {
+  [barcodeContent: string]: {
+    animalId?: string;
+    breed?: string;
+    birthDate?: string;
+    ownerName?: string;
+  } | undefined;
 }
 
 export interface ScanStore {
   items: ScannedItem[];
+  permanentBarcodeData: PermanentBarcodeData;
   addItem: (content: string, type: string) => void;
   removeItem: (id: string) => void;
   clearItems: () => void;

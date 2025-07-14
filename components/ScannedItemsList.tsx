@@ -18,7 +18,7 @@ export default function ScannedItemsList({ filteredItems }: ScannedItemsListProp
   const confirmDelete = (id: string) => {
     Alert.alert(
       "Eintrag löschen",
-      "Sind Sie sicher, dass Sie diesen gescannten Eintrag löschen möchten?",
+      "Sind Sie sicher, dass Sie diesen gescannten Eintrag löschen möchten? Die dauerhaft gespeicherten Informationen bleiben erhalten und werden beim erneuten Scannen wieder angezeigt.",
       [
         { text: "Abbrechen", style: "cancel" },
         { text: "Löschen", onPress: () => removeItem(id), style: "destructive" }
@@ -58,9 +58,7 @@ export default function ScannedItemsList({ filteredItems }: ScannedItemsListProp
     if (info.animalId) infoItems.push(`Tier-ID: ${info.animalId}`);
     if (info.breed) infoItems.push(`Rasse: ${info.breed}`);
     if (info.birthDate) infoItems.push(`Geburt: ${info.birthDate}`);
-    if (info.weight) infoItems.push(`Gewicht: ${info.weight} kg`);
     if (info.ownerName) infoItems.push(`Besitzer: ${info.ownerName}`);
-    if (info.location) infoItems.push(`Standort: ${info.location}`);
 
     return (
       <View style={styles.additionalInfo}>
@@ -71,9 +69,6 @@ export default function ScannedItemsList({ filteredItems }: ScannedItemsListProp
         {infoItems.map((item, index) => (
           <Text key={index} style={styles.additionalInfoText}>• {item}</Text>
         ))}
-        {info.notes && (
-          <Text style={styles.additionalInfoNotes}>Notizen: {info.notes}</Text>
-        )}
       </View>
     );
   };
@@ -97,7 +92,7 @@ export default function ScannedItemsList({ filteredItems }: ScannedItemsListProp
           {hasAdditionalInfo(item) && (
             <View style={styles.infoBadge}>
               <Info size={12} color="#fff" />
-              <Text style={styles.infoBadgeText}>Bearbeitet</Text>
+              <Text style={styles.infoBadgeText}>Dauerhaft gespeichert</Text>
             </View>
           )}
           {!hasAdditionalInfo(item) && (
@@ -275,12 +270,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.light.text,
     marginBottom: 2,
-  },
-  additionalInfoNotes: {
-    fontSize: 13,
-    color: Colors.light.text,
-    marginTop: 4,
-    fontStyle: 'italic',
   },
   actionButtons: {
     flexDirection: 'column',

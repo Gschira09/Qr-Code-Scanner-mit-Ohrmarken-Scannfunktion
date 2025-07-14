@@ -16,10 +16,7 @@ export default function EditItemScreen() {
     animalId: '',
     breed: '',
     birthDate: '',
-    weight: '',
-    notes: '',
     ownerName: '',
-    location: '',
   });
 
   useEffect(() => {
@@ -28,10 +25,7 @@ export default function EditItemScreen() {
         animalId: item.additionalInfo.animalId || '',
         breed: item.additionalInfo.breed || '',
         birthDate: item.additionalInfo.birthDate || '',
-        weight: item.additionalInfo.weight || '',
-        notes: item.additionalInfo.notes || '',
         ownerName: item.additionalInfo.ownerName || '',
-        location: item.additionalInfo.location || '',
       });
     }
   }, [item]);
@@ -53,7 +47,7 @@ export default function EditItemScreen() {
     
     Alert.alert(
       "Dauerhaft gespeichert",
-      `Die zusätzlichen Informationen wurden dauerhaft mit dieser ${itemType} verknüpft und gespeichert. Sie bleiben auch nach App-Neustarts erhalten.`,
+      `Die zusätzlichen Informationen wurden dauerhaft mit dieser ${itemType} verknüpft und gespeichert. Sie bleiben auch nach dem Löschen des Eintrages erhalten und werden beim erneuten Scannen automatisch angezeigt.`,
       [{ text: "OK", onPress: () => router.back() }]
     );
   };
@@ -123,7 +117,7 @@ export default function EditItemScreen() {
           <View style={styles.persistenceInfo}>
             <Lock size={16} color={Colors.light.primary} />
             <Text style={styles.persistenceText}>
-              Alle Änderungen werden dauerhaft mit dieser {isEarTagItem ? 'Ohrmarke' : 'QR-Code'} gespeichert
+              Alle Änderungen werden dauerhaft mit dieser {isEarTagItem ? 'Ohrmarke' : 'QR-Code'} gespeichert und bleiben auch nach dem Löschen erhalten
             </Text>
           </View>
           
@@ -174,18 +168,6 @@ export default function EditItemScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Gewicht (kg)</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.weight}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, weight: text }))}
-              placeholder="z.B. 450"
-              placeholderTextColor={Colors.light.placeholder}
-              keyboardType="numeric"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
             <Text style={styles.label}>Besitzer</Text>
             <TextInput
               style={styles.input}
@@ -193,31 +175,6 @@ export default function EditItemScreen() {
               onChangeText={(text) => setFormData(prev => ({ ...prev, ownerName: text }))}
               placeholder="z.B. Max Mustermann"
               placeholderTextColor={Colors.light.placeholder}
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Standort</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.location}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, location: text }))}
-              placeholder="z.B. Stall A, Box 12"
-              placeholderTextColor={Colors.light.placeholder}
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Notizen</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              value={formData.notes}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, notes: text }))}
-              placeholder="Zusätzliche Informationen..."
-              placeholderTextColor={Colors.light.placeholder}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
             />
           </View>
         </View>
@@ -235,7 +192,7 @@ export default function EditItemScreen() {
         
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            Die Informationen werden dauerhaft mit dieser {isEarTagItem ? 'Ohrmarke' : 'QR-Code'} verknüpft und bleiben auch nach App-Neustarts erhalten.
+            Die Informationen werden dauerhaft mit dieser {isEarTagItem ? 'Ohrmarke' : 'QR-Code'} verknüpft und bleiben auch nach dem Löschen des Eintrages erhalten. Beim erneuten Scannen werden sie automatisch wieder angezeigt.
           </Text>
         </View>
       </ScrollView>
@@ -332,10 +289,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.light.text,
     backgroundColor: '#fff',
-  },
-  textArea: {
-    height: 100,
-    paddingTop: 12,
   },
   buttonContainer: {
     flexDirection: 'row',
